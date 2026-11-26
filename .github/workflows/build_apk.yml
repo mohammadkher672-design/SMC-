@@ -27,11 +27,14 @@ jobs:
         with:
           gradle-version: '9.3.1'
 
-      - name: Find Project & Build APK
+      - name: Generate Keystore & Build APK
         run: |
           PROJECT_DIR=$(find . -maxdepth 3 -name "settings.gradle*" -printf '%h\n' | head -n 1)
           echo "Building inside: $PROJECT_DIR"
           cd "$PROJECT_DIR"
+          if [ ! -f "debug.keystore" ]; then
+            keytool -genkeypair -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          fi
           gradle assembleDebug --no-daemon
 
       - name: Upload APK Artifact
